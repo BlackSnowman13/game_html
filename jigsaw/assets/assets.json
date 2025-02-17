@@ -1,0 +1,15 @@
+{
+    "animals": [
+        {"name": "cat", "url": "./assets/animals/cat.jpg"},
+        {"name": "dog", "url": "./assets/animals/dog.jpg"},
+        {"name": "rabbit", "url": "./assets/animals/rabbit.jpg"},
+        {"name": "squirrel", "url": "./assets/animals/squirrel.jpg"}
+    ],
+
+    "architecture": [
+        {"name": "cat", "url": "./assets/animals/cat.jpg"},
+        {"name": "dog", "url": "./assets/animals/dog.jpg"},
+        {"name": "rabbit", "url": "./assets/animals/rabbit.jpg"},
+        {"name": "squirrel", "url": "./assets/animals/squirrel.jpg"}
+    ]
+}

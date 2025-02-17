@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; width: 100%;">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Jigsaw</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" />
+
+        <style>
+            .loader {
+                height: 4px;
+                width: 130px;
+                --c:no-repeat linear-gradient(#6100ee 0 0);
+                background: var(--c),var(--c),#d7b8fc;
+                background-size: 60% 100%;
+                animation: l16 3s infinite;
+            }
+            @keyframes l16 {
+                0%   {background-position:-150% 0,-150% 0}
+                66%  {background-position: 250% 0,-150% 0}
+                100% {background-position: 250% 0, 250% 0}
+            }
+
+            .jigsaw_piece {
+                margin: 5px;
+            }
+
+            .puzzleCategories {
+                display: flex; 
+                flex-direction: column;
+                height: fit-content;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .puzzleCategories img {
+                aspect-ratio: 1 / 1; 
+                width: 150px; 
+                border-radius: 10px; 
+                border: #f8d0b8 solid 5px;
+            }
+
+            #selector_slider {
+                background-color: #dd7979; 
+                border-radius: 40px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .selected_piece{
+                background-color: #d3714b54; 
+                border-radius: 40px;
+            }
+
+            .infoTransform {
+                height: 100%;
+                width: 100%;
+            }
+
+        </style>
+
+    </head>
+    <body style="height: 100%; width: 100%; margin: 0; background-color: #FFEDE2; font-family: Verdana, Geneva, Tahoma, sans-serif; user-select: none;">
+
+        
+        <!-- Completion Menu -->
+        <div id="completionMenu" style="display: none; position: absolute; background-color: #ff7a373f; height: 100%; width: 100%; justify-content: center; align-items: center;">
+            <div style="display: flex; height: 70%; width: 80%; background-image: linear-gradient(to top, #FEB793, #FFDDCC, #FFFEFE); border: 5px solid #FF7A37; justify-content: space-between; flex-direction: column;">
+
+                <div style="display: flex; justify-content: center; align-items: center; padding: 10px;">
+                    <div style="display: flex; justify-content: center; justify-items: center; padding: 10px; width: 80%; background-color: #FD9764; border-radius: 5px; color: white; font-size: 30px; font-family: Verdana, Geneva, Tahoma, sans-serif;">Completed</div>
+                </div>
+
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <img id="completionImg" src="" alt="completionImage" style="aspect-ratio: 1 / 1; width: 80%; border-radius: 5px; border: #f8d0b8 solid 5px;">
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <div style="display: flex; justify-content: space-evenly; align-items: center; padding: 5px; background-color: #F4B494; width: fit-content; border-radius: 50px;">
+                        <span class="material-symbols-rounded" style="padding: 5px; padding-left: 10px; font-size: 30px;">alarm</span>
+                        <div id="timer" style="padding: 5px; color: white; font-family: Verdana, Geneva, Tahoma, sans-serif; font-weight: bold; font-size: 20px; padding-right: 10px;"></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-evenly; padding: 10px;">
+                    <span onclick="gameBackbutton()" class="material-symbols-rounded" style="font-size: 40px; border-radius: 50px; background-color: #ff480075; padding: 5px;">home</span>
+                    <span onclick="onGameRefreshClick()" class="material-symbols-rounded" style="font-size: 40px; border-radius: 50px; background-color: #ff480075; padding: 5px;">cached</span>
+                    <span onclick="nextImageInGame()" class="material-symbols-rounded" style="font-size: 40px; border-radius: 50px; background-color: #ff480075; padding: 5px;">play_arrow</span>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Jigsaw game -->
+        <div id="game" style="display: none; flex-direction: column; justify-content: stretch; height: 100%;">
+
+            <div id="infoParent" style="display: flex; position: absolute; width: 100%; height: 100%; justify-content: center; align-items: center; z-index: -1; display: none;">
+                <div style="display: flex; width: 95%; height: 95%; justify-content: flex-end;">
+                    <div id="infoDisplay" style="display: flex; flex-direction: column; align-items: center; background-color: #FFC6AA; height: 50px; width: 50px; transition: width 0.5s, height 0.5s, background-color 1s, border-radius 1s; transition-timing-function: ease; border-radius: 50px; border: #FF7A37 solid 5px;">
+                        <div id="infoDisplayHeader" style="font-size: 30px; font-weight: bold; padding: 10px; opacity: 0; transition-delay: 0.5s;">RULES</div>
+                        <div id="infoDisplayContent" style="display: flex; font-size: 25px; width: 100%; margin: 20px; opacity: 0; transition-delay: 0.5s;">
+                            <ol>
+                                <li style="padding: 20px;">Find the edge pieces: Look for pieces with a straight side and make the border first.</li>
+                                <li style="padding: 20px;">Sort by color: Put pieces with the same colors or patterns together.</li>
+                                <li style="padding: 20px;">Try to match the shapes: Find pieces that fit together. Do not push too hard!</li>
+                                <li style="padding: 20px;">Take your time: If you get stuck, take a break and try again. Have fun! </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="height: fit-content; width: 100%; display: flex; justify-content: space-around; background-color: #FFC6AA; padding-top: 20px; padding-bottom: 20px;">
+                <span onclick="gameBackbutton()" id="back_button" class="material-symbols-rounded" style="font-size: 50px; user-select: none;">arrow_back</span>
+                <span id="show_image" onclick="onShowImageClick()" class="material-symbols-rounded" style="font-size: 50px; user-select: none;">image</span>
+                 <img onclick="onEdgePeiceClick()" src="./edge-icon.svg" style="aspect-ratio: 1 / 1; width: 35px;">
+                <span id="hint" onclick="onShowHintClick()" class="material-symbols-rounded" style="font-size: 50px; user-select: none;">emoji_objects</span>
+                <span id="refresh" onclick="onRefreshClick()" class="material-symbols-rounded" style="font-size: 50px; user-select: none;">cached</span>
+                <span id="info" onclick="showRules()" class="material-symbols-rounded" style="z-index: 1; font-size: 50px; user-select: none;">info</span>
+            </div>
+
+            <div style="display: flex; justify-content: center;">
+                <div id="countdownSeconds" style="background-color: #FFBB98; width: 25%; text-align: center; padding: 10px; margin-top: 10px; color: white; font-size: 40px; font-weight: bold;">3</div>
+            </div>
+    
+            <div style="flex: 1; display: flex; align-items: center;">
+                <canvas id="jigsaw_canvas" style="aspect-ratio: 1 / 1; flex: 1; background-color: #FFBB98;"></canvas>
+            </div>
+    
+            <div id="jigsaw_peices" style="display: flex; flex-direction: row; justify-content: space-between; height: fit-content; background-color: #EEB69A; align-items: center; overflow-x: auto;"></div>
+        </div>
+
+
+        <!-- Selection puzzles -->
+        <div id="gameSelectionPannel" style="display: none; position: absolute; height: 100%; width: 100%; background-color: #ff7a373f; z-index: 1; justify-content: center; align-items: center;">
+
+            <div style="display: flex; height: 100%; width: 100%; align-items: center; justify-content: space-between; position: absolute;">
+                <span onclick="previousImage()" class="material-symbols-rounded" style="color: #ED8957; font-size: 170px;">arrow_left</span>
+                <span onclick="nextImage()" class="material-symbols-rounded" style="color: #ED8957; font-size: 170px;">arrow_right</span>
+            </div>
+
+            <div style="display: flex; height: 70%; width: 80%; background-image: linear-gradient(to top, #FEB793, #FFDDCC, #FFFEFE); border: 5px solid #FF7A37; justify-content: space-between; flex-direction: column; align-items: center;">
+          
+                <div style="display: flex; width: 100%; height: fit-content; justify-content: flex-end; z-index: 2;">
+                    <span onclick="onCloseCategoryClick()" class="material-symbols-rounded" style="color: #C31A1A; padding: 5px; font-size: 35px;">disabled_by_default</span>
+                </div>
+
+                <div style="display: flex; height: 100%; width: 100%; flex-direction: column; justify-content: space-between; align-items: center;">
+                    <div style="background-color: #FFC6AA; width: fit-content; display: flex; text-align: center; padding: 10px; border-radius: 20px; font-size: 25px;">
+                        Choose difficulty
+                    </div>
+    
+                    <div style="display: flex; justify-content: center; align-items: center; width: fit-content;">
+                        <img id="selection_image" src="" alt="selected_image" style="aspect-ratio: 1 / 1; border-radius: 5px; width: 80%; border: #fadac6 solid 5px;">
+                    </div>
+    
+                    <div style="z-index: 1; display: flex; height: fit-content; width: 100%; background-color: #FFC6AA; flex-direction: column;">
+                        <div style="display: flex; justify-content: center; padding: 5px; font-size: 20px;">Number of pieces</div>
+                        <div id="selector_area" style="display: flex; flex-direction: row; justify-content: space-evenly; padding: 5px; font-size: 20px;">
+                            <div class="piece_number" id="piece_4" style="padding: 10px;">4</div>
+                            <div class="piece_number" id="piece_9" style="padding: 10px;">9</div>
+                            <div class="piece_number selected_piece" id="piece_16" style="padding: 10px;">16</div>
+                            <div class="piece_number" id="piece_25" style="padding: 10px;">25</div>
+                            <!-- <div id="selector_slider" style="display: flex; position: absolute;"></div> -->
+                        </div>
+                    </div>
+    
+                    <div onclick="initializeGame()" style="z-index: 1; font-size: 30px; text-align: center; padding: 10px; background-color: #FD9764; width: 50%; border-radius: 30px; margin-bottom: 10px; color: white;">Play</div>
+                </div>
+
+            </div>
+         </div>
+
+
+        <!-- Image selector pannel -->
+        <div id="puzzlesList" style="display: flex; height: 100%; width: 100%; justify-content: center; flex-direction: column; align-items: center;">
+
+            <div style="font-family: Verdana, Geneva, Tahoma, sans-serif; background-color: #FD9764; margin-top: 20px; margin-bottom: 20px; height: fit-content; width: 60%; padding: 10px; justify-content: center; align-items: center; display: flex; font-size: 30px; border-radius: 15px; color: white;">
+                MY PUZZLES
+            </div>
+
+            <div style="display: flex; flex: 1; flex-wrap: wrap; flex-direction: row; align-content: flex-start; justify-content: space-between; width: 100%;">
+
+                <div class="puzzleCategories" onclick="onCategoryClick()">
+                    <img src="./assets/animals/cat.jpg">
+                    <div>Animals</div>
+                    <div style="display: none; position: absolute; width: 150px; height: 150px; border-radius: 10px; border: #fadac6 solid 5px; justify-content: center; align-items: center; background-color: #d9d9d9de;">
+                        <span class="material-symbols-rounded" style="display: flex; font-size: 50px;">lock</span>
+                    </div>
+                </div>
+
+                <div class="puzzleCategories">
+                    <img src="./assets/architecture/placeholder.jpg">
+                    <div>Architecture</div>
+                    <div style="display: flex; position: absolute; width: 150px; height: 150px; border-radius: 10px; border: #f8d0b8 solid 5px; justify-content: center; align-items: center; background-color: #ffede2b9;">
+                        <span class="material-symbols-rounded" style="display: flex; font-size: 50px;">lock</span>
+                    </div>
+                </div>
+
+                <div class="puzzleCategories">
+                    <img src="./assets/scenery/fiji.jpg">
+                    <div>Scenery</div>
+                    <div style="display: flex; position: absolute; width: 150px; height: 150px; border-radius: 10px; border: #f8d0b8 solid 5px; justify-content: center; align-items: center; background-color: #ffede2b9;">
+                        <span class="material-symbols-rounded" style="display: flex; font-size: 50px;">lock</span>
+                    </div>
+                </div>
+
+                <div class="puzzleCategories">
+                    <img src="./assets/birds/bird-1.jpg">
+                    <div>Birds</div>
+                    <div style="display: flex; position: absolute; width: 150px; height: 150px; border-radius: 10px; border: #f8d0b8 solid 5px; justify-content: center; align-items: center; background-color: #ffede2b9;">
+                        <span class="material-symbols-rounded" style="display: flex; font-size: 50px;">lock</span>
+                    </div>
+                </div>
+
+                <div class="puzzleCategories">
+                    <img src="./assets/food/food-1.jpg">
+                    <div>Food</div>
+                    <div style="display: flex; position: absolute; width: 150px; height: 150px; border-radius: 10px; border: #f8d0b8 solid 5px; justify-content: center; align-items: center; background-color: #ffede2b9;">
+                        <span class="material-symbols-rounded" style="display: flex; font-size: 50px;">lock</span>
+                    </div>
+                </div>
+
+                <div class="puzzleCategories" id="imageUploadButton">
+                    <div style="aspect-ratio: 1 / 1; width: 150px; border-radius: 10px; border: #f8d0b8 solid 5px;">
+                        <input style="display: none;" type="file" accept="image/*" id="imageUpload">
+                    </div>
+                    <div>Add your own image</div>
+                    <div style="display: flex; position: absolute; width: 150px; height: 150px; border-radius: 10px; border: #f8d0b8 solid 5px; justify-content: center; align-items: center; background-color: #ffede2b9;">
+                        <span class="material-symbols-rounded" style="display: flex; font-size: 50px;">add_photo_alternate</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <script>
+            var assetsData;
+            fetch('./assets/assets.json').then(res => res.json()).then((data) => assetsData = data)
+
+            
+            let showEdgePiece = false;
+            let disableEvents = true
+            let jigsawImage = ""
+
+            var seconds = 0;
+            var initSeconds = 3;
+            var timerId;
+            var initTimer;
+
+            const canvas = document.getElementById("jigsaw_canvas");
+            const context = canvas.getContext("2d");
+            var peices = [];
+            
+            var rows = 4;
+            var cols = 4;
+
+            let displayImg = new Image();
+
+            var currentSelected = "piece_16";
+
+            var selectedCategory = "animals"
+            var imageIndex = -1;
+            var categorySize = 0;
+
+            var info = false
+            var customImage = false;
+
+            // function onPiecesClick(element) {
+            //     console.log(element.target.id)
+
+            // }
+
+            document.querySelectorAll('.piece_number').forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    document.getElementById(currentSelected).classList.remove('selected_piece');
+                    currentSelected = event.target.id;
+                    document.getElementById(currentSelected).classList.add('selected_piece');
+                    // console.log(`ID: ${event.target.id}`)
+                    // event.
+                })
+            });
+
+            document.getElementById('imageUploadButton').addEventListener('click', () => {
+                document.getElementById('imageUpload').click()
+            })
+
+            document.getElementById("imageUpload").addEventListener("change", function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // const img = document.getElementById("preview");
+                        // img.src = e.target.result;
+                        // img.style.display = "block";
+                        customImage = true
+                        jigsawImage = e.target.result
+                        openSpecialCategorySelection()
+
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            function openSpecialCategorySelection() {
+                // categorySize = assetsData.animals.length;
+                // imageIndex = 0;
+                // jigsawImage = assetsData.animals[imageIndex].url
+                document.getElementById('selection_image').src = jigsawImage
+                document.getElementById('gameSelectionPannel').style.display = "flex";
+            }
+
+            function showRules() {
+                if (!info) {
+                    document.getElementById('infoParent').style.display = "flex"
+                    document.getElementById('infoParent').style.zIndex = "1"
+                    document.getElementById('infoParent').style.zIndex = "1"
+
+                    document.getElementById('infoDisplay').style.width = "100%"
+                    document.getElementById('infoDisplay').style.height = "100%"
+                    document.getElementById('infoDisplay').style.backgroundColor = "#FFC6AA"
+                    document.getElementById('infoDisplay').style.borderRadius = "0px"
+                    // document.getElementById('infoDisplay').style.border = "#FF7A37 solid 5px"
+
+                    document.getElementById('infoDisplayHeader').style.transition = "opacity 1s 1s"
+                    document.getElementById('infoDisplayContent').style.transition = "opacity 1s 1s"
+
+                    document.getElementById('infoDisplayHeader').style.opacity = "1"
+                    document.getElementById('infoDisplayContent').style.opacity = "1"
+
+                    
+
+
+                    // infoDisplayHeader
+                } else {
+                    // document.getElementById('infoDisplay').style.border = ""
+                    document.getElementById('infoDisplay').style.width = "50px"
+                    document.getElementById('infoDisplay').style.height = "50px"
+                    document.getElementById('infoDisplay').style.backgroundColor = "#FFC6AA"
+                    document.getElementById('infoDisplay').style.borderRadius = "50px"
+                    
+
+                    document.getElementById('infoDisplayHeader').style.transition = ""
+                    document.getElementById('infoDisplayContent').style.transition = ""
+
+                    document.getElementById('infoDisplayHeader').style.opacity = "0"
+                    document.getElementById('infoDisplayContent').style.opacity = "0"
+
+                    setTimeout(() => {
+                        document.getElementById('infoParent').style.zIndex = "-1"
+                        document.getElementById('infoParent').style.zIndex = "-1"
+                        document.getElementById('infoParent').style.display = "none"
+                    }, 600)
+                }
+                info = !info;
+            }
+
+            function nextImageInGame() {
+                if (imageIndex < categorySize - 1) {
+                    imageIndex++;
+                    jigsawImage = assetsData.animals[imageIndex].url
+                    initializeGame()
+                }
+            }
+
+            function gameBackbutton() {
+                clearInterval(timerId)
+                seconds = 0;
+                customImage = false
+
+                document.getElementById('puzzlesList').style.display = "flex"
+                document.getElementById('game').style.display = "none"
+                document.getElementById('completionMenu').style.display = "none"
+            }
+
+            function initializeGame() {
+                clearInterval(timerId)
+                seconds = 0;
+                initSeconds = 3;
+
+                document.getElementById('gameSelectionPannel').style.display = "none"
+                document.getElementById('puzzlesList').style.display = "none"
+                document.getElementById('game').style.display = "flex"
+                document.getElementById('completionMenu').style.display = "none"
+                document.getElementById('countdownSeconds').style.display = "block";
+
+                rows = cols = Math.sqrt(parseInt(currentSelected.replace("piece_", "")))
+                jigsawInit();
+            }
+
+            function previousImage() {
+                if (customImage) return;
+                if (imageIndex > 0) {
+                    imageIndex--;
+                    jigsawImage = assetsData.animals[imageIndex].url
+                    document.getElementById('selection_image').src = jigsawImage
+                }
+            }
+
+            function nextImage() {
+                if (customImage) return;
+                if (imageIndex < categorySize - 1) {
+                    imageIndex++;
+                    jigsawImage = assetsData.animals[imageIndex].url
+                    document.getElementById('selection_image').src = jigsawImage
+                }
+                console.log(imageIndex)
+                
+            }
+
+            function onCloseCategoryClick() {
+                document.getElementById('gameSelectionPannel').style.display = "none";
+            }
+
+            function onCategoryClick() {
+                categorySize = assetsData.animals.length;
+                imageIndex = 0;
+                jigsawImage = assetsData.animals[imageIndex].url
+                document.getElementById('selection_image').src = jigsawImage
+                document.getElementById('gameSelectionPannel').style.display = "flex";
+            }
+
+            function jigsawInit() {
+                peices = []
+                document.getElementById('jigsaw_peices').innerHTML = ""
+
+                canvas.height = canvas.clientHeight;
+                canvas.width = canvas.clientWidth
+
+                canvas.style.flex = "0 1 auto"
+
+                displayImg.src = jigsawImage
+
+                displayImg.onload = () => {
+                    context.drawImage(displayImg, 0, 0, canvas.width, canvas.height);
+
+                    // setTimeout(() => {
+                    //     context.clearRect(0, 0, canvas.width, canvas.height);
+                    //     displayJigsawPeices(canvas.width, canvas.height, rows, cols);
+
+                    //     timerId = setInterval(() => {
+                    //         seconds += 1;
+                    //     }, 1000)
+                    //     disableEvents = false;
+                    // }, 3000);
+
+                    initTimer = setInterval(() => {
+                        document.getElementById('countdownSeconds').innerText = initSeconds;
+                        initSeconds -= 1
+                        if (initSeconds < 0) {
+                            clearInterval(initTimer)
+                            document.getElementById('countdownSeconds').style.display = "none";
+
+                            context.clearRect(0, 0, canvas.width, canvas.height);
+                            displayJigsawPeices(canvas.width, canvas.height, rows, cols);
+
+                            timerId = setInterval(() => {
+                                seconds += 1;
+                            }, 1000)
+                            disableEvents = false;
+                        }
+                    }, 1000)
+                }
+            }
+            
+
+            function displayJigsawPeices(width, height, rows, cols) {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
+                const image = new Image();
+                image.src = jigsawImage
+                ctx.imageSmoothingEnabled = false;
+
+                canvas.height = height;
+                canvas.width = width;
+
+                image.onload = () => {
+                    ctx.drawImage(image, 0, 0, width, height);
+
+                    const pieceWidth = width / cols;
+                    const pieceHeight = height / rows;
+
+                    for (let row = 0; row < rows; row++) {
+                        for (let col = 0; col < cols; col++) {
+                            cutPeice(ctx, col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight, col, row, cols, rows);
+                        } 
+                    }
+
+                    const shuffled = shuffleArray(peices);
+                    for (let peice of shuffled) {
+                        document.getElementById("jigsaw_peices").appendChild(peice);
+                    }
+                }
+            }
+
+            function onGameRefreshClick() {
+                onRefreshClick()
+                document.getElementById('completionMenu').style.display = "none";
+            }
+
+            function onShowHintClick() {
+                if (disableEvents) return;
+                disableEvents = true;
+                const pieceCanvas = document.createElement("canvas");
+                const pieceCtx = pieceCanvas.getContext("2d");
+                const pieceWidth = canvas.width / cols;
+                const pieceHeight = canvas.height / rows;
+                const actualPieceWidth = pieceWidth + (2 * (pieceWidth / 3));
+                const actualPieceHeight = pieceHeight + (2 * (pieceHeight / 3));
+
+                const peicesContainerChildren = document.getElementById("jigsaw_peices").children;
+                for (let child of peicesContainerChildren) {
+                    if (child.dataset.placed == "false") {
+                        if (showEdgePiece && !(child.dataset.corner == "true")) continue;
+
+                        const peiceIndex = child.dataset.correctIndex;
+                        const row = Math.floor(peiceIndex / rows);
+                        const col = peiceIndex % cols;
+
+                        pieceCanvas.width = actualPieceWidth;
+                        pieceCanvas.height = actualPieceHeight;
+
+                        pieceCtx.beginPath();
+                        drawJigsawShape(pieceCtx, pieceWidth, pieceHeight, actualPieceWidth, actualPieceHeight, col, row, cols, rows, peiceIndex);
+                        pieceCtx.stroke();
+                        pieceCtx.clip();
+
+                        const heightBlockSize = canvas.height / rows;
+                        const widthBlockSize = canvas.width / cols;
+
+                        const startX = heightBlockSize * row;
+                        const startY = widthBlockSize * col;
+                        const clipX = startY;
+                        const clipY = startX;
+
+                        const image = new Image()
+                        image.src = pieceCanvas.toDataURL();
+                        image.onload = async () => {
+                            // context.drawImage
+                            console.log("here")
+                            await context.drawImage(image, 0, 0, actualPieceWidth, actualPieceHeight, clipX - (pieceWidth / 3), clipY - (pieceHeight / 3), actualPieceWidth, actualPieceHeight)
+
+                            setTimeout(() => {
+                                context.clearRect(0, 0, canvas.width, canvas.height);
+                                
+
+                                for (let peice of peices) {
+                                    if (peice.dataset.placed == "false") continue;
+
+                                    const peiceIndex = peice.dataset.correctIndex
+                                    const heightBlockSize = canvas.height / rows;
+                                    const widthBlockSize = canvas.width / cols;
+                                    const currentRow = Math.floor(peiceIndex / rows);
+                                    const currentColumn = peiceIndex % cols;
+                                    const startX = heightBlockSize * currentRow;
+                                    const startY = widthBlockSize * currentColumn;
+                                    const endX = heightBlockSize * (currentRow + 1);
+                                    const endY = widthBlockSize * (currentColumn + 1);
+                                    const pieceWidth = canvas.width / cols;
+                                    const pieceHeight = canvas.height / rows;
+                                    const actualPieceWidth = pieceWidth + (2 * (pieceWidth / 3));
+                                    const actualPieceHeight = pieceHeight + (2 * (pieceHeight / 3));
+                                    const clipX = startY;
+                                    const clipY = startX;
+
+                                    const image = new Image();
+                                    image.src = peice.src;
+                                    image.onload = () => {
+                                        context.drawImage(image, 0, 0, actualPieceWidth, actualPieceHeight, clipX - (pieceWidth / 3), clipY - (pieceHeight / 3), actualPieceWidth, actualPieceHeight)
+                                        disableEvents = false;
+                                    }                        
+                                }
+                            }, 3000);
+                        }
+                        disableEvents = false
+                        return;
+
+                    }
+                }
+            }
+
+            function onShowImageClick() {
+                if (disableEvents) return;
+                disableEvents = true;
+
+                context.drawImage(displayImg, 0, 0, canvas.width, canvas.height);
+
+                setTimeout(() => {
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    
+
+                    for (let peice of peices) {
+                        if (peice.dataset.placed == "false") continue;
+
+                        const peiceIndex = peice.dataset.correctIndex
+                        const heightBlockSize = canvas.height / rows;
+                        const widthBlockSize = canvas.width / cols;
+                        const currentRow = Math.floor(peiceIndex / rows);
+                        const currentColumn = peiceIndex % cols;
+                        const startX = heightBlockSize * currentRow;
+                        const startY = widthBlockSize * currentColumn;
+                        const endX = heightBlockSize * (currentRow + 1);
+                        const endY = widthBlockSize * (currentColumn + 1);
+                        const pieceWidth = canvas.width / cols;
+                        const pieceHeight = canvas.height / rows;
+                        const actualPieceWidth = pieceWidth + (2 * (pieceWidth / 3));
+                        const actualPieceHeight = pieceHeight + (2 * (pieceHeight / 3));
+                        const clipX = startY;
+                        const clipY = startX;
+
+                        const image = new Image();
+                        image.src = peice.src;
+                        image.onload = () => {
+                            context.drawImage(image, 0, 0, actualPieceWidth, actualPieceHeight, clipX - (pieceWidth / 3), clipY - (pieceHeight / 3), actualPieceWidth, actualPieceHeight)
+                            
+                        }                        
+                    }
+                }, 3000);
+
+                disableEvents = false;
+            }
+
+            function onRefreshClick() {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                showEdgePiece = false;
+                for (let peice of peices) {
+                    peice.style.display = "block";
+                    peice.dataset.placed = false;
+                    document.getElementById("jigsaw_peices").appendChild(peice);
+                }
+                clearInterval(timerId);
+                seconds = 0
+                timerId = setInterval(() => {
+                    seconds += 1
+                }, 1000)
+            }
+
+            function onEdgePeiceClick() {
+                for (let peice of peices) {
+                    if (peice.dataset.placed == "false" && peice.dataset.corner == "false") {
+                        peice.style.display = showEdgePiece ? "block" : "none"
+                    }
+                    document.getElementById("jigsaw_peices").appendChild(peice);
+                }
+                showEdgePiece = !showEdgePiece;
+                console.log(`showState: ${showEdgePiece}`)
+
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1)); 
+                    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                }
+                return array;
+            }
+
+            async function cutPeice(ctx, x, y, pieceWidth, pieceHeight, col, row, cols, rows) {
+                const pieceCanvas = document.createElement("canvas");
+                const pieceCtx = pieceCanvas.getContext("2d");
+
+                const actualPieceWidth = pieceWidth + (2 * (pieceWidth / 3));
+                const actualPieceHeight = pieceHeight + (2 * (pieceHeight / 3));
+
+                const peiceIndex = (row * cols) + col;
+
+                pieceCanvas.width = actualPieceWidth;
+                pieceCanvas.height = actualPieceHeight;
+
+                pieceCtx.beginPath();
+                drawJigsawShape(pieceCtx, pieceWidth, pieceHeight, actualPieceWidth, actualPieceHeight, col, row, cols, rows, peiceIndex);
+                pieceCtx.stroke();
+                pieceCtx.clip();
+
+                pieceCtx.drawImage(ctx.canvas, x - (pieceWidth / 3), y - (pieceHeight / 3), actualPieceWidth, actualPieceHeight, 0, 0, actualPieceWidth, actualPieceHeight)
+
+                const cutImage = document.createElement("img");
+                cutImage.src = pieceCanvas.toDataURL();
+                cutImage.classList.add('jigsaw_piece');
+                cutImage.draggable = true;
+                cutImage.dataset.correctIndex = peiceIndex;
+                cutImage.dataset.placed = false;
+
+                if (row == 0 || col == 0 || row == rows - 1 || col == cols - 1) cutImage.dataset.corner = true;
+                else cutImage.dataset.corner = false
+
+                cutImage.addEventListener("touchend", (event) => {
+                    const touch = event.changedTouches[0];
+                    const dropX = touch.clientX;
+                    const dropY = touch.clientY;
+
+                    const rect = canvas.getBoundingClientRect();
+                    const canvasX = dropX - rect.left;
+                    const canvasY = dropY - rect.top;
+
+                    // console.log(`Dropped at: (${canvasX}, ${canvasY})`);
+                    if (canvasX >= 0 && canvasX <= canvas.width && canvasY >= 0 && canvasY <= canvas.height) {
+                        const index = cutImage.dataset.correctIndex;
+                        const currentRow = Math.floor(index / rows);
+                        const currentColumn = index % cols;
+                        // console.log(`Index: ${index} Row: ${currentRow} Column: ${currentColumn}`)
+                        
+                        const heightBlockSize = canvas.height / rows;
+                        const widthBlockSize = canvas.width / cols;
+
+                        // console.log(`Canvas X: ${canvasX} Canvas Y: ${canvasY} Bounds: (${currentRow * heightBlockSize}, ${currentRow * widthBlockSize}) to (${(currentColumn + 1) * heightBlockSize}, ${(currentColumn + 1) * widthBlockSize})`)
+
+                        const startX = heightBlockSize * currentRow;
+                        const startY = widthBlockSize * currentColumn;
+                        const endX = heightBlockSize * (currentRow + 1);
+                        const endY = widthBlockSize * (currentColumn + 1);
+
+                        if (canvasX >= startY && canvasY >= startX && canvasX <= endY && canvasY <= endX) {
+                            const clipX = startY;
+                            const clipY = startX;
+                            // console.log(`Clip X: ${clipX} Clip Y: ${clipY}`)
+
+                            const droppedImg = new Image();
+                            droppedImg.src = cutImage.src;
+                            droppedImg.onload = async () => {
+                                await context.drawImage(droppedImg, 0, 0, actualPieceWidth, actualPieceHeight, clipX - (pieceWidth / 3), clipY - (pieceHeight / 3), actualPieceWidth, actualPieceHeight)
+                                cutImage.style.display = "none";
+                                cutImage.dataset.placed = true;
+                                
+                                const foundIndex = peices.find(peice => peice.dataset.correctIndex == index)
+                                peices[foundIndex] = cutImage;
+
+                                // for (let peice of peices) {
+                                //     if (peice.dataset.placed == "true") continue;
+                                    
+
+                                //     document.getElementById('completionMenu').style.display = "flex"
+                                // }
+                                const status = peices.find((p) => p.dataset.placed == "false")
+                                if (status === undefined) {
+                                    clearInterval(timerId);
+                                    document.getElementById('timer').innerText = formatSeconds(seconds)
+                                    document.getElementById('completionImg').src = jigsawImage
+                                    document.getElementById('completionMenu').style.display = "flex"
+                                }
+                                // console.log(status)
+
+                                // console.log(`Index: ${index} Piece Index: ${peiceIndex} Piece: ${peices[index].dataset.correctIndex} CornerState: ${peices[index].dataset.corner}`)
+                            };
+                        }
+                    }
+                })
+                peices.push(cutImage);
+                // console.log(peices)
+
+            }
+
+            function formatSeconds(totalSeconds) {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                const formattedMinutes = String(minutes).padStart(2, '0');
+                const formattedSeconds = String(seconds).padStart(2, '0');
+                return `${formattedMinutes}:${formattedSeconds}`;
+                }
+
+            function drawJigsawShape(ctx, w, h, actualPieceWidth, actualPieceHeight, col, row, cols, rows, index) {
+                ctx.lineTo(w / 3, h / 3);
+
+                if (row != 0) ctx.arc(actualPieceWidth / 2,  h / 3, 25, 1 * Math.PI , 0* Math.PI, (col % 2 == 0))
+                ctx.lineTo(actualPieceWidth - (w / 3), h / 3);
+
+                if (col != cols - 1) ctx.arc(actualPieceWidth - (w / 3),  actualPieceHeight / 2 , 25, 1.5 * Math.PI , 0.5* Math.PI, !(row % 2 == 0))
+                ctx.lineTo(actualPieceWidth - (w / 3), actualPieceHeight - (h / 3));
+
+                if (row != rows - 1) ctx.arc(actualPieceWidth / 2, actualPieceHeight - (h / 3), 25, 0 * Math.PI , 1 * Math.PI, !(col % 2 == 0))
+                ctx.lineTo(w / 3, actualPieceHeight - (h / 3));
+
+                if (col != 0) ctx.arc(w / 3,  actualPieceHeight / 2, 25, 0.5 * Math.PI , 1.5 * Math.PI, (row % 2 == 0))
+                ctx.lineTo(w / 3, h / 3);
+            
+            }
+
+        </script>
+
+    </body>
+</html>
