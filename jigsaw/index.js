@@ -448,8 +448,38 @@ async function cutPeice(ctx, x, y, pieceWidth, pieceHeight, col, row, cols, rows
     if (row == 0 || col == 0 || row == rows - 1 || col == cols - 1) cutImage.dataset.corner = true;
     else cutImage.dataset.corner = false
 
+    cutImage.addEventListener("touchstart", (event) => {
+        const touch = event.touches[0];
+        const dragImage = document.getElementById('dragImage')
+        
+        dragImage.style.left = touch.clientX - actualPieceWidth / 2 + 'px'
+        dragImage.style.top = touch.clientY - actualPieceHeight / 2 + 'px'
+        dragImage.style.width = cutImage.width + 'px'
+        dragImage.style.height = cutImage.height + 'px'
+        dragImage.src = cutImage.src
+        dragImage.style.display = "block"
+    })
+
+    cutImage.addEventListener("touchmove", (event) => {
+        event.preventDefault();
+        const touch = event.touches[0];
+        const dragImage = document.getElementById('dragImage')
+
+        dragImage.style.left = touch.clientX - actualPieceWidth / 2 + 'px'
+        dragImage.style.top = touch.clientY - actualPieceHeight / 2 + 'px'
+        console.log('here')
+        // dragImage.style.display = "block"
+    })
+
     cutImage.addEventListener("touchend", (event) => {
         const touch = event.changedTouches[0];
+
+        const dragImage = document.getElementById('dragImage')
+
+        dragImage.style.left = touch.clientX - actualPieceWidth / 2 + 'px'
+        dragImage.style.top = touch.clientY - actualPieceHeight / 2 + 'px'
+        dragImage.style.display = "none"
+
         const dropX = touch.clientX;
         const dropY = touch.clientY;
 
