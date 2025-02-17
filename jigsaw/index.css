@@ -1,0 +1,49 @@
+.loader {
+    height: 4px;
+    width: 130px;
+    --c:no-repeat linear-gradient(#6100ee 0 0);
+    background: var(--c),var(--c),#d7b8fc;
+    background-size: 60% 100%;
+    animation: l16 3s infinite;
+}
+@keyframes l16 {
+    0%   {background-position:-150% 0,-150% 0}
+    66%  {background-position: 250% 0,-150% 0}
+    100% {background-position: 250% 0, 250% 0}
+}
+
+.jigsaw_piece {
+    margin: 5px;
+}
+
+.puzzleCategories {
+    display: flex; 
+    flex-direction: column;
+    height: fit-content;
+    text-align: center;
+    padding: 20px;
+}
+
+.puzzleCategories img {
+    aspect-ratio: 1 / 1; 
+    width: 150px; 
+    border-radius: 10px; 
+    border: #f8d0b8 solid 5px;
+}
+
+#selector_slider {
+    background-color: #dd7979; 
+    border-radius: 40px;
+    width: 50px;
+    height: 50px;
+}
+
+.selected_piece{
+    background-color: #d3714b54; 
+    border-radius: 40px;
+}
+
+.infoTransform {
+    height: 100%;
+    width: 100%;
+}
