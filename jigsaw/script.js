@@ -2,7 +2,7 @@ var assetsData;
 fetchAssetsJson()
 
 async function fetchAssetsJson() {
-    await fetch('https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/assets.json').then(res => res.json()).then((data) => assetsData = data)
+    await fetch('https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets.json').then(res => res.json()).then((data) => assetsData = data)
 }
 
 let showEdgePiece = false;
