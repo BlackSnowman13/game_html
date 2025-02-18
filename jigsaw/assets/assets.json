@@ -1,15 +1,15 @@
 {
     "animals": [
-        {"name": "cat", "url": "./assets/animals/cat.jpg"},
-        {"name": "dog", "url": "./assets/animals/dog.jpg"},
-        {"name": "rabbit", "url": "./assets/animals/rabbit.jpg"},
-        {"name": "squirrel", "url": "./assets/animals/squirrel.jpg"}
+        {"name": "cat", "url": "https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/animals/cat.jpg"},
+        {"name": "dog", "url": "https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/animals/dog.jpg"},
+        {"name": "rabbit", "url": "https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/animals/rabbit.jpg"},
+        {"name": "squirrel", "url": "https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/animals/squirrel.jpg"}
     ],
 
     "architecture": [
-        {"name": "cat", "url": "./assets/animals/cat.jpg"},
-        {"name": "dog", "url": "./assets/animals/dog.jpg"},
-        {"name": "rabbit", "url": "./assets/animals/rabbit.jpg"},
-        {"name": "squirrel", "url": "./assets/animals/squirrel.jpg"}
+        {"name": "building", "url": "https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/architecture/building.jpg"},
+        {"name": "colosseum", "url": "https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/architecture/colosseum.jpg"},
+        {"name": "placeholder", "url": "https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/architecture/placeholder.jpg"},
+        {"name": "taj_mahal", "url": "https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/architecture/taj_mahal.jpg"}
     ]
 }

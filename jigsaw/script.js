@@ -1,18 +1,23 @@
 var assetsData;
-fetch('./assets/assets.json').then(res => res.json()).then((data) => assetsData = data)
+// fetch('https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/assets.json').then(res => res.json()).then((data) => assetsData = data)
 
+fetchAssetsJson()
+
+async function fetchAssetsJson() {
+    await fetch('https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/assets.json').then(res => res.json()).then((data) => assetsData = data)
+}
 
 let showEdgePiece = false;
 let disableEvents = true
+
 let jigsawImage = ""
 
 var seconds = 0;
 var initSeconds = 3;
+
 var timerId;
 var initTimer;
 
-const canvas = document.getElementById("jigsaw_canvas");
-const context = canvas.getContext("2d");
 var peices = [];
 
 var rows = 4;
@@ -21,7 +26,6 @@ var cols = 4;
 let displayImg = new Image();
 
 var currentSelected = "piece_16";
-
 var selectedCategory = "animals"
 var imageIndex = -1;
 var categorySize = 0;
@@ -29,18 +33,14 @@ var categorySize = 0;
 var info = false
 var customImage = false;
 
-// function onPiecesClick(element) {
-//     console.log(element.target.id)
-
-// }
+const canvas = document.getElementById("jigsaw_canvas");
+const context = canvas.getContext("2d");
 
 document.querySelectorAll('.piece_number').forEach((button) => {
     button.addEventListener('click', (event) => {
         document.getElementById(currentSelected).classList.remove('selected_piece');
         currentSelected = event.target.id;
         document.getElementById(currentSelected).classList.add('selected_piece');
-        // console.log(`ID: ${event.target.id}`)
-        // event.
     })
 });
 
@@ -53,9 +53,6 @@ document.getElementById("imageUpload").addEventListener("change", function(event
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // const img = document.getElementById("preview");
-            // img.src = e.target.result;
-            // img.style.display = "block";
             customImage = true
             jigsawImage = e.target.result
             openSpecialCategorySelection()
@@ -167,7 +164,7 @@ function nextImage() {
         jigsawImage = assetsData.animals[imageIndex].url
         document.getElementById('selection_image').src = jigsawImage
     }
-    console.log(imageIndex)
+    // console.log(imageIndex)
     
 }
 
@@ -467,7 +464,7 @@ async function cutPeice(ctx, x, y, pieceWidth, pieceHeight, col, row, cols, rows
 
         dragImage.style.left = touch.clientX - actualPieceWidth / 2 + 'px'
         dragImage.style.top = touch.clientY - actualPieceHeight / 2 + 'px'
-        console.log('here')
+        // console.log('here')
         // dragImage.style.display = "block"
     })
 
