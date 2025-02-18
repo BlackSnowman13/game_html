@@ -1,6 +1,4 @@
 var assetsData;
-// fetch('https://zoodlmes3.s3.ap-south-1.amazonaws.com/game_assets/Jigsaw/assets/assets.json').then(res => res.json()).then((data) => assetsData = data)
-
 fetchAssetsJson()
 
 async function fetchAssetsJson() {
@@ -63,9 +61,6 @@ document.getElementById("imageUpload").addEventListener("change", function(event
 });
 
 function openSpecialCategorySelection() {
-    // categorySize = assetsData.animals.length;
-    // imageIndex = 0;
-    // jigsawImage = assetsData.animals[imageIndex].url
     document.getElementById('selection_image').src = jigsawImage
     document.getElementById('gameSelectionPannel').style.display = "flex";
 }
@@ -80,7 +75,6 @@ function showRules() {
         document.getElementById('infoDisplay').style.height = "100%"
         document.getElementById('infoDisplay').style.backgroundColor = "#FFC6AA"
         document.getElementById('infoDisplay').style.borderRadius = "0px"
-        // document.getElementById('infoDisplay').style.border = "#FF7A37 solid 5px"
 
         document.getElementById('infoDisplayHeader').style.transition = "opacity 1s 1s"
         document.getElementById('infoDisplayContent').style.transition = "opacity 1s 1s"
@@ -88,12 +82,7 @@ function showRules() {
         document.getElementById('infoDisplayHeader').style.opacity = "1"
         document.getElementById('infoDisplayContent').style.opacity = "1"
 
-        
-
-
-        // infoDisplayHeader
     } else {
-        // document.getElementById('infoDisplay').style.border = ""
         document.getElementById('infoDisplay').style.width = "50px"
         document.getElementById('infoDisplay').style.height = "50px"
         document.getElementById('infoDisplay').style.backgroundColor = "#FFC6AA"
@@ -163,9 +152,7 @@ function nextImage() {
         imageIndex++;
         jigsawImage = assetsData.animals[imageIndex].url
         document.getElementById('selection_image').src = jigsawImage
-    }
-    // console.log(imageIndex)
-    
+    }    
 }
 
 function onCloseCategoryClick() {
@@ -193,16 +180,6 @@ function jigsawInit() {
 
     displayImg.onload = () => {
         context.drawImage(displayImg, 0, 0, canvas.width, canvas.height);
-
-        // setTimeout(() => {
-        //     context.clearRect(0, 0, canvas.width, canvas.height);
-        //     displayJigsawPeices(canvas.width, canvas.height, rows, cols);
-
-        //     timerId = setInterval(() => {
-        //         seconds += 1;
-        //     }, 1000)
-        //     disableEvents = false;
-        // }, 3000);
 
         initTimer = setInterval(() => {
             document.getElementById('countdownSeconds').innerText = initSeconds;
@@ -297,26 +274,22 @@ function onShowHintClick() {
             const image = new Image()
             image.src = pieceCanvas.toDataURL();
             image.onload = async () => {
-                // context.drawImage
-                console.log("here")
                 await context.drawImage(image, 0, 0, actualPieceWidth, actualPieceHeight, clipX - (pieceWidth / 3), clipY - (pieceHeight / 3), actualPieceWidth, actualPieceHeight)
 
                 setTimeout(() => {
                     context.clearRect(0, 0, canvas.width, canvas.height);
-                    
 
                     for (let peice of peices) {
                         if (peice.dataset.placed == "false") continue;
 
                         const peiceIndex = peice.dataset.correctIndex
-                        const heightBlockSize = canvas.height / rows;
-                        const widthBlockSize = canvas.width / cols;
                         const currentRow = Math.floor(peiceIndex / rows);
                         const currentColumn = peiceIndex % cols;
+
+                        const heightBlockSize = canvas.height / rows;
+                        const widthBlockSize = canvas.width / cols;
                         const startX = heightBlockSize * currentRow;
                         const startY = widthBlockSize * currentColumn;
-                        const endX = heightBlockSize * (currentRow + 1);
-                        const endY = widthBlockSize * (currentColumn + 1);
                         const pieceWidth = canvas.width / cols;
                         const pieceHeight = canvas.height / rows;
                         const actualPieceWidth = pieceWidth + (2 * (pieceWidth / 3));
@@ -354,14 +327,13 @@ function onShowImageClick() {
             if (peice.dataset.placed == "false") continue;
 
             const peiceIndex = peice.dataset.correctIndex
-            const heightBlockSize = canvas.height / rows;
-            const widthBlockSize = canvas.width / cols;
             const currentRow = Math.floor(peiceIndex / rows);
             const currentColumn = peiceIndex % cols;
+
+            const heightBlockSize = canvas.height / rows;
+            const widthBlockSize = canvas.width / cols;
             const startX = heightBlockSize * currentRow;
             const startY = widthBlockSize * currentColumn;
-            const endX = heightBlockSize * (currentRow + 1);
-            const endY = widthBlockSize * (currentColumn + 1);
             const pieceWidth = canvas.width / cols;
             const pieceHeight = canvas.height / rows;
             const actualPieceWidth = pieceWidth + (2 * (pieceWidth / 3));
@@ -373,7 +345,6 @@ function onShowImageClick() {
             image.src = peice.src;
             image.onload = () => {
                 context.drawImage(image, 0, 0, actualPieceWidth, actualPieceHeight, clipX - (pieceWidth / 3), clipY - (pieceHeight / 3), actualPieceWidth, actualPieceHeight)
-                
             }                        
         }
     }, 3000);
@@ -411,7 +382,7 @@ function onEdgePeiceClick() {
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1)); 
-        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+        [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
 }
@@ -484,17 +455,13 @@ async function cutPeice(ctx, x, y, pieceWidth, pieceHeight, col, row, cols, rows
         const canvasX = dropX - rect.left;
         const canvasY = dropY - rect.top;
 
-        // console.log(`Dropped at: (${canvasX}, ${canvasY})`);
         if (canvasX >= 0 && canvasX <= canvas.width && canvasY >= 0 && canvasY <= canvas.height) {
             const index = cutImage.dataset.correctIndex;
             const currentRow = Math.floor(index / rows);
             const currentColumn = index % cols;
-            // console.log(`Index: ${index} Row: ${currentRow} Column: ${currentColumn}`)
             
             const heightBlockSize = canvas.height / rows;
             const widthBlockSize = canvas.width / cols;
-
-            // console.log(`Canvas X: ${canvasX} Canvas Y: ${canvasY} Bounds: (${currentRow * heightBlockSize}, ${currentRow * widthBlockSize}) to (${(currentColumn + 1) * heightBlockSize}, ${(currentColumn + 1) * widthBlockSize})`)
 
             const startX = heightBlockSize * currentRow;
             const startY = widthBlockSize * currentColumn;
@@ -504,7 +471,6 @@ async function cutPeice(ctx, x, y, pieceWidth, pieceHeight, col, row, cols, rows
             if (canvasX >= startY && canvasY >= startX && canvasX <= endY && canvasY <= endX) {
                 const clipX = startY;
                 const clipY = startX;
-                // console.log(`Clip X: ${clipX} Clip Y: ${clipY}`)
 
                 const droppedImg = new Image();
                 droppedImg.src = cutImage.src;
@@ -516,12 +482,6 @@ async function cutPeice(ctx, x, y, pieceWidth, pieceHeight, col, row, cols, rows
                     const foundIndex = peices.find(peice => peice.dataset.correctIndex == index)
                     peices[foundIndex] = cutImage;
 
-                    // for (let peice of peices) {
-                    //     if (peice.dataset.placed == "true") continue;
-                        
-
-                    //     document.getElementById('completionMenu').style.display = "flex"
-                    // }
                     const status = peices.find((p) => p.dataset.placed == "false")
                     if (status === undefined) {
                         clearInterval(timerId);
@@ -529,15 +489,11 @@ async function cutPeice(ctx, x, y, pieceWidth, pieceHeight, col, row, cols, rows
                         document.getElementById('completionImg').src = jigsawImage
                         document.getElementById('completionMenu').style.display = "flex"
                     }
-                    // console.log(status)
-
-                    // console.log(`Index: ${index} Piece Index: ${peiceIndex} Piece: ${peices[index].dataset.correctIndex} CornerState: ${peices[index].dataset.corner}`)
                 };
             }
         }
     })
     peices.push(cutImage);
-    // console.log(peices)
 
 }
 
