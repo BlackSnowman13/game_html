@@ -422,8 +422,8 @@ async function cutPeice(ctx, x, y, pieceWidth, pieceHeight, col, row, cols, rows
         
         dragImage.style.left = touch.clientX - actualPieceWidth / 2 + 'px'
         dragImage.style.top = touch.clientY - actualPieceHeight / 2 + 'px'
-        dragImage.style.width = cutImage.width + 'px'
-        dragImage.style.height = cutImage.height + 'px'
+        dragImage.style.width = actualPieceWidth + 'px'
+        dragImage.style.height = actualPieceHeight + 'px'
         dragImage.src = cutImage.src
         dragImage.style.display = "block"
     })

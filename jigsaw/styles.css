@@ -12,8 +12,10 @@
     100% {background-position: 250% 0, 250% 0}
 }
 
-.jigsaw_piece {
+.jigsaw_piece img {
     margin: 5px;
+    aspect-ratio: 1 / 1;
+    height: max-content;
 }
 
 .puzzleCategories {
